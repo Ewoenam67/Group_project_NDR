@@ -49,9 +49,14 @@ elif selected == "Predictor":
     st.write("Provide the disaster and location details to estimate the number of people affected.")
 
     input_data = {}
+
+    # --- Forcefully add 'Year' field ---
+    if 'Year' in X_columns:
+        input_data['Year'] = st.number_input("Year", min_value=1900, max_value=2100, value=2023)
+
     for col in X_columns:
-        if col.lower() == 'year':
-            input_data[col] = st.number_input("Year", min_value=1900, max_value=2100, value=2023)
+        if col == 'Year':
+            continue  # already added above
         elif col.lower() in ['total_deaths', 'number_injured', 'number_affected', 'number_homeless']:
             input_data[col] = st.number_input(col.replace("_", " ").title(), min_value=0.0, value=100.0)
         elif col.lower() in ['country', 'region', 'disaster_group', 'disaster_type']:
@@ -65,11 +70,11 @@ elif selected == "Predictor":
     # Ensure all required columns are present and in correct order
     for col in X_columns:
         if col not in input_df.columns:
-            input_df[col] = 0
+            input_df[col] = 0  # Fill any missed column
     input_df = input_df[X_columns]
 
-    # Apply imputer and scaler
     try:
+        # Impute & Scale
         input_imputed = imputer.transform(input_df)
         input_scaled = scaler.transform(input_imputed)
 
@@ -79,6 +84,8 @@ elif selected == "Predictor":
     except Exception as e:
         st.error("🚫 Prediction Failed.")
         st.code(str(e))
+        st.write("Expected columns:", X_columns)
+        st.write("Current input shape:", input_df.shape)
 
 # ------------------------------------------------
 # ABOUT TAB
