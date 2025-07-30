@@ -14,6 +14,7 @@ st.set_page_config(page_title="Loan Amount Predictor - Group 2", layout="wide")
 # ------------------------------------------------
 model = joblib.load("decision_tree_model.pkl")
 scaler = joblib.load("scaler.pkl")
+imputer = joblib.load("imputer.pkl")
 X_columns = joblib.load("X_columns.pkl")
 
 # ------------------------------------------------
@@ -70,7 +71,9 @@ elif selected == "Predictor":
             input_data[col] = mapping[input_data[col]]
 
     input_df = pd.DataFrame([input_data])
-    input_scaled = scaler.transform(input_df)
+    input_imputed = imputer.transform(input_df)
+    input_scaled = scaler.transform(input_imputed)
+    prediction = model.predict(input_scaled)[0]
 
     if st.button("Predict Loan Amount"):
         prediction = model.predict(input_scaled)[0]
