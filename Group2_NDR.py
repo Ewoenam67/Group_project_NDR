@@ -44,34 +44,22 @@ if selected == "Home":
 # ------------------------------------------------
 # PREDICTOR TAB
 # ------------------------------------------------
-elif selected == "Predictor":
-    st.title("📊 Disaster Impact Prediction")
-    st.write("Provide the disaster and location details to estimate the number of people affected.")
-
     input_data = {}
 
-    # --- Forcefully add 'Year' field ---
-    if 'Year' in X_columns:
-        input_data['Year'] = st.number_input("Year", min_value=1900, max_value=2100, value=2023)
-
+    # Ask the user for input for each expected feature
     for col in X_columns:
-        if col == 'Year':
-            continue  # already added above
-        elif col.lower() in ['total_deaths', 'number_injured', 'number_affected', 'number_homeless']:
+        if col.lower() in ['total_deaths', 'number_injured', 'number_affected', 'number_homeless']:
             input_data[col] = st.number_input(col.replace("_", " ").title(), min_value=0.0, value=100.0)
         elif col.lower() in ['country', 'region', 'disaster_group', 'disaster_type']:
             input_data[col] = st.number_input(f"Encoded: {col.replace('_', ' ').title()}", min_value=0, step=1)
+        elif col.lower() == 'year':
+            input_data[col] = st.number_input("Year", min_value=1900, max_value=2100, value=2023)
         else:
             input_data[col] = st.number_input(f"{col.replace('_', ' ').title()}", value=0.0)
 
-    # Convert to DataFrame and align with training structure
+    # Create DataFrame and reorder columns to match training data
     input_df = pd.DataFrame([input_data])
-
-    # Ensure all required columns are present and in correct order
-    for col in X_columns:
-        if col not in input_df.columns:
-            input_df[col] = 0  # Fill any missed column
-    input_df = input_df[X_columns]
+    input_df = input_df.reindex(columns=X_columns, fill_value=0)
 
     try:
         # Impute & Scale
