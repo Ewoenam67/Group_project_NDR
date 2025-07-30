@@ -44,22 +44,34 @@ if selected == "Home":
 # ------------------------------------------------
 # PREDICTOR TAB
 # ------------------------------------------------
+elif selected == "Predictor":
+    st.title("📊 Disaster Impact Prediction")
+    st.write("Provide the disaster and location details to estimate the number of people affected.")
+
     input_data = {}
 
-    # Ask the user for input for each expected feature
+    # --- Forcefully add 'Year' field ---
+    if 'Year' in X_columns:
+        input_data['Year'] = st.number_input("Year", min_value=1900, max_value=2100, value=2023)
+
     for col in X_columns:
-        if col.lower() in ['total_deaths', 'number_injured', 'number_affected', 'number_homeless']:
+        if col == 'Year':
+            continue  # already added above
+        elif col.lower() in ['total_deaths', 'number_injured', 'number_affected', 'number_homeless']:
             input_data[col] = st.number_input(col.replace("_", " ").title(), min_value=0.0, value=100.0)
         elif col.lower() in ['country', 'region', 'disaster_group', 'disaster_type']:
             input_data[col] = st.number_input(f"Encoded: {col.replace('_', ' ').title()}", min_value=0, step=1)
-        elif col.lower() == 'year':
-            input_data[col] = st.number_input("Year", min_value=1900, max_value=2100, value=2023)
         else:
             input_data[col] = st.number_input(f"{col.replace('_', ' ').title()}", value=0.0)
 
-    # Create DataFrame and reorder columns to match training data
+    # Convert to DataFrame and align with training structure
     input_df = pd.DataFrame([input_data])
-    input_df = input_df.reindex(columns=X_columns, fill_value=0)
+
+    # Ensure all required columns are present and in correct order
+    for col in X_columns:
+        if col not in input_df.columns:
+            input_df[col] = 0  # Fill any missed column
+    input_df = input_df[X_columns]
 
     try:
         # Impute & Scale
@@ -81,10 +93,10 @@ if selected == "Home":
 elif selected == "About":
     st.title("ℹ About This App")
     st.markdown("""
-        This app was developed by *Group 2* to estimate the number of people affected by natural disasters.
+        This app was developed by Group 2 to estimate the number of people affected by natural disasters.
 
-        *Model Used*: Decision Tree Regressor  
-        *Tools*: Python, Scikit-learn, Streamlit  
-        *Dataset*: Natural Disaster Records (1993–2023)  
-        *Goal*: Provide insights for emergency preparedness and resource planning.
+        Model Used: Decision Tree Regressor  
+        Tools: Python, Scikit-learn, Streamlit  
+        Dataset: Natural Disaster Records (1993–2023)  
+        Goal: Provide insights for emergency preparedness and resource planning.
     """)
