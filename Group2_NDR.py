@@ -50,14 +50,8 @@ elif selected == "Predictor":
 
     input_data = {}
 
-    # --- Forcefully add 'Year' field ---
-    if 'Year' in X_columns:
-        input_data['Year'] = st.number_input("Year", min_value=1900, max_value=2100, value=2023)
-
     for col in X_columns:
-        if col == 'Year':
-            continue  # already added above
-        elif col.lower() in ['total_deaths', 'number_injured', 'number_affected', 'number_homeless']:
+        if col.lower() in ['total_deaths', 'number_injured', 'number_affected', 'number_homeless']:
             input_data[col] = st.number_input(col.replace("_", " ").title(), min_value=0.0, value=100.0)
         elif col.lower() in ['country', 'region', 'disaster_group', 'disaster_type']:
             input_data[col] = st.number_input(f"Encoded: {col.replace('_', ' ').title()}", min_value=0, step=1)
